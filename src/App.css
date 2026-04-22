@@ -521,6 +521,151 @@ main {
   gap: 12px;
 }
 
+.profile-main-layout {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+}
+
+.profile-form-card {
+  flex: 1 1 640px;
+  min-width: 0;
+}
+
+.settings-card {
+  flex: 1 1 420px;
+  min-width: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.settings-card-web {
+  max-width: 980px;
+}
+
+.settings-group {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.settings-group h3 {
+  margin: 0;
+  color: #f1f4fb;
+  font-size: 1rem;
+}
+
+.setting-row {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 0;
+  text-align: left;
+}
+
+.setting-row-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.setting-row.clickable {
+  cursor: pointer;
+}
+
+.setting-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f7d673;
+  color: #513400;
+  display: grid;
+  place-items: center;
+}
+
+.setting-icon-wrap svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.setting-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.setting-copy strong {
+  color: #f8f9fc;
+  font-size: 0.9rem;
+}
+
+.setting-copy small {
+  color: #9ca6b8;
+  font-size: 0.76rem;
+}
+
+.setting-chevron {
+  color: #8b95a9;
+  font-size: 0.95rem;
+}
+
+.setting-toggle {
+  width: 42px;
+  height: 22px;
+  border: 0;
+  border-radius: 999px;
+  background: #b4bbc8;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.setting-toggle span {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.setting-toggle.on {
+  background: #f5a623;
+}
+
+.setting-toggle.on span {
+  transform: translateX(20px);
+}
+
+.signout-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 14px;
+  background: #f01414;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.signout-btn:hover {
+  background: #d80f0f;
+}
+
 .form-grid label {
   display: grid;
   gap: 6px;
@@ -621,6 +766,23 @@ main {
 @media (max-width: 768px) {
   main {
     padding: 16px;
+  }
+
+  .profile-main-layout {
+    gap: 12px;
+  }
+
+  .profile-form-card,
+  .settings-card {
+    flex-basis: 100%;
+  }
+
+  .settings-card-web {
+    max-width: none;
+  }
+
+  .settings-card {
+    gap: 12px;
   }
 
   .dashboard-grid {
