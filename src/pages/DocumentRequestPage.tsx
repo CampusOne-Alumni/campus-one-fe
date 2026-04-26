@@ -3,10 +3,12 @@ import type { FormEvent } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { submitDocumentRequest } from '../features/alumni/alumniSlice'
 import { SectionCard } from '../components/common/SectionCard'
+import { useAuth } from '../hooks/useAuth'
 
 export function DocumentRequestPage() {
   const dispatch = useAppDispatch()
   const status = useAppSelector((state) => state.alumni.status)
+  const { user, tenant } = useAuth()
 
   const [documentType, setDocumentType] = useState('')
   const [numberOfCopies, setNumberOfCopies] = useState(1)
@@ -28,8 +30,11 @@ export function DocumentRequestPage() {
         purpose,
         deliveryMethod,
         consentAccepted,
+        actor_uuid: user.id,
+        tenant_id: tenant.id
       }),
-    )
+    ).unwrap()
+    alert('Document request submitted!')
 
     setPurpose('')
   }

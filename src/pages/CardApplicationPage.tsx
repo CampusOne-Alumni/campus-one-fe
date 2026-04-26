@@ -3,10 +3,13 @@ import type { FormEvent } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { submitCardApplication } from '../features/alumni/alumniSlice'
 import { SectionCard } from '../components/common/SectionCard'
+import { useAuth } from '../hooks/useAuth'
 
 export function CardApplicationPage() {
   const dispatch = useAppDispatch()
   const status = useAppSelector((state) => state.alumni.status)
+  const { user, tenant } = useAuth()
+  
   const [applicationType, setApplicationType] = useState<'new' | 'replacement'>('new')
   const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'delivery'>('pickup')
   const [idPhotoFileName, setIdPhotoFileName] = useState('')
@@ -26,8 +29,11 @@ export function CardApplicationPage() {
         deliveryMethod,
         idPhotoFileName,
         consentAccepted,
+        actor_uuid: user.id,
+        tenant_id: tenant.id
       }),
-    )
+    ).unwrap()
+    alert('Card application submitted!')
   }
 
   return (

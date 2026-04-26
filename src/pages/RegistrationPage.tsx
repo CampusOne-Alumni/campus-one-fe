@@ -1,3 +1,9 @@
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import type { AppDispatch } from '../app/store'
+import { registerAlumni } from '../features/alumni/alumniSlice'
+import { useAuth } from '../hooks/useAuth'
+
 const academicUnits = [
   'College of Arts and Sciences',
   'College of Business and Accountancy',
@@ -9,28 +15,28 @@ const academicUnits = [
   'Graduate School',
 ]
 
-function TextField({ label, required = false, placeholder, type = 'text' }: { label: string; required?: boolean; placeholder?: string; type?: string }) {
+function TextField({ label, required = false, placeholder, type = 'text', value, onChange }: any) {
   return (
     <label className="form-field">
       <span>
         {label} {required ? <strong>*</strong> : null}
       </span>
-      <input type={type} placeholder={placeholder} />
+      <input type={type} placeholder={placeholder} value={value} onChange={onChange} required={required} />
     </label>
   )
 }
 
-function SelectField({ label, required = false, options, placeholder }: { label: string; required?: boolean; options: string[]; placeholder: string }) {
+function SelectField({ label, required = false, options, placeholder, value, onChange }: any) {
   return (
     <label className="form-field">
       <span>
         {label} {required ? <strong>*</strong> : null}
       </span>
-      <select defaultValue="">
+      <select value={value} onChange={onChange} required={required}>
         <option value="" disabled>
           {placeholder}
         </option>
-        {options.map((option) => (
+        {options.map((option: string) => (
           <option key={option} value={option}>
             {option}
           </option>
@@ -40,62 +46,82 @@ function SelectField({ label, required = false, options, placeholder }: { label:
   )
 }
 
-function PasswordField({ label, required = false, helperText }: { label: string; required?: boolean; helperText?: string }) {
+function PasswordField({ label, required = false, helperText, value, onChange }: any) {
   return (
     <label className="form-field password-field">
       <span>
         {label} {required ? <strong>*</strong> : null}
       </span>
       <div className="password-input-wrap">
-        <input type="password" />
-        <button type="button" className="icon-button" aria-label={`Show ${label.toLowerCase()}`}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M2.5 12s3.8-6 9.5-6 9.5 6 9.5 6-3.8 6-9.5 6-9.5-6-9.5-6Z" />
-            <circle cx="12" cy="12" r="2.5" />
-          </svg>
-        </button>
+        <input type="password" value={value} onChange={onChange} required={required} />
       </div>
       {helperText ? <small>{helperText}</small> : null}
     </label>
   )
 }
 
-function ContactIcon({ type }: { type: 'location' | 'phone' | 'mail' | 'clock' }) {
-  if (type === 'location') {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 21s6-5.7 6-11a6 6 0 0 0-12 0c0 5.3 6 11 6 11Z" />
-        <circle cx="12" cy="10" r="2.2" />
-      </svg>
-    )
-  }
 
-  if (type === 'phone') {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5.5 4.8 8.7 8c-.7 1.3-.8 2.7-.2 4l1.5 2.8c.8 1.5 2.4 2.6 4.1 3l2.4.5 1.8-1.8c.4-.4.6-1 .4-1.6l-.7-2.1a1.3 1.3 0 0 0-1.3-.9l-2.5.2c-1.5.1-3-.6-3.8-1.9L8 8.8c-.5-.8-.4-1.9.2-2.6l1.1-1.1-3.8-.3Z" />
-      </svg>
-    )
-  }
-
-  if (type === 'mail') {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
-        <path d="m5 8 7 5 7-5" />
-      </svg>
-    )
-  }
-
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 8.2V12l2.5 1.7" />
-    </svg>
-  )
-}
 
 export function RegistrationPage() {
+  const dispatch = useDispatch<AppDispatch>()
+  const { user, tenant } = useAuth()
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    studentId: '',
+    academicUnit: '',
+    graduationYear: '',
+    program: '',
+    password: '',
+    confirmPassword: '',
+    consent: false,
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: string) => {
+    const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match!')
+      return
+    }
+    
+    if (!formData.consent) {
+      alert('You must accept the Terms and Conditions.')
+      return
+    }
+
+    try {
+      await dispatch(registerAlumni({
+        actor_uuid: user.id, // Pulled from useAuth context
+        tenant_id: tenant.id, // Pulled from useAuth context
+        first_name: formData.firstName,
+        middle_name: formData.middleName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        academic_unit: formData.academicUnit,
+        graduation_year: parseInt(formData.graduationYear),
+        program: formData.program || 'Not Specified',
+        student_id: formData.studentId,
+        is_legacy_registration: false
+      })).unwrap()
+
+      alert('Registration successful! Please wait for admin approval.')
+      // Redirect or reset form could go here
+    } catch (err) {
+      alert('Failed to register. Please try again.')
+    }
+  }
+
   return (
     <div className="registration-page">
       <header className="registration-topbar">
@@ -111,43 +137,46 @@ export function RegistrationPage() {
           <p>Create an account to access alumni services and stay connected with Campus One</p>
         </section>
 
-        <form className="registration-form" onSubmit={(event) => event.preventDefault()}>
+        <form className="registration-form" onSubmit={handleSubmit}>
           <section className="registration-section">
             <h2>Personal Info</h2>
             <div className="field-grid single-column">
-              <TextField label="First Name" required />
-              <TextField label="Middle Name" />
-              <TextField label="Last Name" required />
-              <TextField label="Email Address" required type="email" />
-              <TextField label="Phone Number" required placeholder="+63 XXX XXX XXXX" type="tel" />
+              <TextField label="First Name" required value={formData.firstName} onChange={(e: any) => handleChange(e, 'firstName')} />
+              <TextField label="Middle Name" value={formData.middleName} onChange={(e: any) => handleChange(e, 'middleName')} />
+              <TextField label="Last Name" required value={formData.lastName} onChange={(e: any) => handleChange(e, 'lastName')} />
+              <TextField label="Email Address" required type="email" value={formData.email} onChange={(e: any) => handleChange(e, 'email')} />
+              <TextField label="Phone Number" required placeholder="+63 XXX XXX XXXX" type="tel" value={formData.phone} onChange={(e: any) => handleChange(e, 'phone')} />
             </div>
           </section>
 
           <section className="registration-section">
             <h2>Academic Info</h2>
             <div className="field-grid single-column">
-              <TextField label="Student ID Number" required placeholder="e.g., 2020-12345" />
+              <TextField label="Student ID Number" required placeholder="e.g., 2020-12345" value={formData.studentId} onChange={(e: any) => handleChange(e, 'studentId')} />
               <SelectField
                 label="Academic Unit Affiliation"
                 required
                 placeholder="Select your academic unit affiliation"
                 options={academicUnits}
+                value={formData.academicUnit} 
+                onChange={(e: any) => handleChange(e, 'academicUnit')}
               />
-              <TextField label="Year of Graduation" required placeholder="e.g., 2024" type="number" />
+              <TextField label="Program (Course)" required placeholder="e.g., BS Computer Science" value={formData.program} onChange={(e: any) => handleChange(e, 'program')} />
+              <TextField label="Year of Graduation" required placeholder="e.g., 2024" type="number" value={formData.graduationYear} onChange={(e: any) => handleChange(e, 'graduationYear')} />
             </div>
           </section>
 
           <section className="registration-section">
             <h2>Account Security</h2>
             <div className="field-grid single-column">
-              <PasswordField label="Password" required helperText="At least 8 characters" />
-              <PasswordField label="Confirm Password" required />
+              <PasswordField label="Password" required helperText="At least 8 characters" value={formData.password} onChange={(e: any) => handleChange(e, 'password')} />
+              <PasswordField label="Confirm Password" required value={formData.confirmPassword} onChange={(e: any) => handleChange(e, 'confirmPassword')} />
             </div>
           </section>
 
           <section className="registration-consent">
             <label className="checkbox-row">
-              <input type="checkbox" />
+              <input type="checkbox" checked={formData.consent} onChange={(e: any) => handleChange(e, 'consent')} />
               <span>
                 I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a>
               </span>
@@ -157,55 +186,7 @@ export function RegistrationPage() {
           <button className="registration-submit" type="submit">
             Create Account
           </button>
-
-          <p className="registration-login-link">
-            Already have an account? <a href="#">Log In</a>
-          </p>
         </form>
-
-        <footer className="registration-footer">
-          <section>
-            <h3>Address</h3>
-            <p>
-              <ContactIcon type="location" />
-              <span>
-                3F Alumni Relations Center,
-                <br />
-                One Building,
-                <br />
-                Campus One, Manila 1015
-              </span>
-            </p>
-          </section>
-
-          <section>
-            <h3>Phone Number</h3>
-            <p>
-              <ContactIcon type="phone" />
-              <span>(+63) 945 111 0101 | (+63) 945 010 1111</span>
-            </p>
-          </section>
-
-          <section>
-            <h3>E-mail Address</h3>
-            <p>
-              <ContactIcon type="mail" />
-              <a href="mailto:alumnirelations@campusone.edu.ph">alumnirelations@campusone.edu.ph</a>
-            </p>
-          </section>
-
-          <section>
-            <h3>Office Hours</h3>
-            <p>
-              <ContactIcon type="clock" />
-              <span>Monday to Friday : 9:00 AM to 6:00 PM</span>
-            </p>
-          </section>
-
-          <div className="registration-footer-rule" />
-          <p className="registration-copyright">Copyright 2026</p>
-          <p className="registration-copyright">Campus One. Office of Alumni Relations</p>
-        </footer>
       </main>
     </div>
   )

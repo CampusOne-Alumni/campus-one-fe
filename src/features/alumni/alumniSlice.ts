@@ -25,10 +25,36 @@ const initialState: AlumniState = {
   error: null,
 }
 
+export const registerAlumni = createAsyncThunk(
+  'alumni/registerAlumni',
+  async (payload: {
+    actor_uuid: string
+    tenant_id: string
+    first_name: string
+    middle_name?: string
+    last_name: string
+    email: string
+    phone: string
+    academic_unit: string
+    graduation_year: number
+    program: string
+    is_legacy_registration?: boolean
+    student_id?: string
+    proof_reference?: string
+    document_url?: string
+  }) => {
+    return apiRequest<{ success: boolean }>('/api/v1/alumni/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+)
+
 export const updateProfile = createAsyncThunk(
   'alumni/updateProfile',
-  async (profile: AlumniProfile) => {
-    await apiRequest('/api/alumni/profile/update', {
+  async (profile: AlumniProfile & { actor_uuid?: string }) => {
+    // Note: This expects the backend to handle the actor_uuid from body if not in URL
+    await apiRequest('/api/v1/alumni/profile/update', {
       method: 'POST',
       body: JSON.stringify(profile),
     })
@@ -45,8 +71,10 @@ export const submitCardApplication = createAsyncThunk(
     deliveryMethod?: 'pickup' | 'delivery'
     idPhotoFileName?: string
     consentAccepted?: boolean
+    actor_uuid?: string
+    tenant_id?: string
   }) => {
-    return apiRequest<{ success: boolean }>('/api/alumni/card-application', {
+    return apiRequest<{ success: boolean }>('/api/v1/alumni/cards/apply', {
       method: 'POST',
       body: JSON.stringify(payload),
     })
@@ -62,8 +90,10 @@ export const submitDocumentRequest = createAsyncThunk(
     purpose?: string
     deliveryMethod?: 'pickup' | 'courier'
     consentAccepted?: boolean
+    actor_uuid?: string
+    tenant_id?: string
   }) => {
-    return apiRequest<{ success: boolean }>('/api/alumni/record-request', {
+    return apiRequest<{ success: boolean }>('/api/v1/alumni/records/request', {
       method: 'POST',
       body: JSON.stringify(payload),
     })
