@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 const academicUnits = [
   'College of Arts and Sciences',
   'College of Business and Accountancy',
@@ -99,10 +101,10 @@ export function RegistrationPage() {
   return (
     <div className="registration-page">
       <header className="registration-topbar">
-        <a className="back-link" href="/dashboard" aria-label="Back to dashboard">
+        <Link className="back-link" href="/dashboard" aria-label="Back to dashboard">
           <span aria-hidden="true">←</span>
           <strong>Register</strong>
-        </a>
+        </Link>
       </header>
 
       <main className="registration-page-main">

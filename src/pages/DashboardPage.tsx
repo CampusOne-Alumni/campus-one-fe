@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 export function DashboardPage() {
   return (
@@ -36,15 +36,15 @@ export function DashboardPage() {
         <section className="dashboard-panel panel-actions">
           <h3 className="section-head">Quick Actions</h3>
           <div className="quick-stack">
-            <Link className="quick-yellow" to="/card-application">
+            <Link className="quick-yellow" href="/card-application">
               <strong>Apply for Alumni Card</strong>
               <span>Get your official alumni identification</span>
             </Link>
-            <Link className="quick-dark" to="/document-request">
+            <Link className="quick-dark" href="/document-request">
               <strong>Request Documents</strong>
               <span>Order official transcripts and certificates</span>
             </Link>
-            <Link className="quick-dark" to="/clearance-tracker">
+            <Link className="quick-dark" href="/clearance-tracker">
               <strong>Track Clearance Routing</strong>
               <span>Monitor Library, Finance, Dean, and Labs sign-offs</span>
             </Link>
@@ -59,7 +59,7 @@ export function DashboardPage() {
               <strong>John Doe</strong>
               <p>jertznaval57@gmail.com</p>
             </div>
-            <Link className="ghost-btn" to="/profile">
+            <Link className="ghost-btn" href="/profile">
               View Full Profile
             </Link>
           </article>

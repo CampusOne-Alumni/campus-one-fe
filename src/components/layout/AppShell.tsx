@@ -1,9 +1,14 @@
-import { Outlet } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { setSidebarOpen, toggleSidebar } from '../../features/ui/uiSlice'
 import { Sidebar } from './Sidebar'
 
-export function AppShell() {
+type AppShellProps = {
+  title: string
+  children: ReactNode
+}
+
+export function AppShell({ title, children }: AppShellProps) {
   const dispatch = useAppDispatch()
   const isSidebarOpen = useAppSelector((state) => state.ui.sidebarOpen)
 
@@ -35,13 +40,13 @@ export function AppShell() {
             <span />
           </button>
           <div className="top-bar-center">
-            <h1>DASHBOARD</h1>
+            <h1>{title}</h1>
             <p>Alumni Portal</p>
           </div>
         </header>
 
         <main>
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>
