@@ -5,12 +5,15 @@ import { ClearanceTrackerPage } from './pages/ClearanceTrackerPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DocumentRequestPage } from './pages/DocumentRequestPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { RegistrationPage } from './pages/RegistrationPage'
 import { ProfilePage } from './pages/ProfilePage'
 import './App.css'
 
 function App() {
   return (
     <Routes>
+      <Route path="/register" element={<RegistrationPage />} />
+      <Route path="/registration" element={<RegistrationPage />} />
       <Route element={<AppShell />}>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />

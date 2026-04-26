@@ -39,7 +39,13 @@ export const updateProfile = createAsyncThunk(
 
 export const submitCardApplication = createAsyncThunk(
   'alumni/submitCardApplication',
-  async (payload: { reason: string }) => {
+  async (payload: {
+    reason: string
+    applicationType?: 'new' | 'replacement'
+    deliveryMethod?: 'pickup' | 'delivery'
+    idPhotoFileName?: string
+    consentAccepted?: boolean
+  }) => {
     return apiRequest<{ success: boolean }>('/api/alumni/card-application', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -49,7 +55,14 @@ export const submitCardApplication = createAsyncThunk(
 
 export const submitDocumentRequest = createAsyncThunk(
   'alumni/submitDocumentRequest',
-  async (payload: { documentType: string; notes: string }) => {
+  async (payload: {
+    documentType: string
+    notes: string
+    numberOfCopies?: number
+    purpose?: string
+    deliveryMethod?: 'pickup' | 'courier'
+    consentAccepted?: boolean
+  }) => {
     return apiRequest<{ success: boolean }>('/api/alumni/record-request', {
       method: 'POST',
       body: JSON.stringify(payload),
