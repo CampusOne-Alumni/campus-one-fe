@@ -1,5 +1,16 @@
 # React + TypeScript + Vite
 
+## Coding Standards (Frontend)
+
+- Framework: React (Vite-based frontend)
+- Language: TypeScript only for source code under `src/`
+- File extensions allowed in `src/`: `.ts` and `.tsx`
+
+Enforcement in this repo:
+
+- TypeScript strict mode is enabled.
+- ESLint fails if `.js`/`.jsx`/`.mjs`/`.cjs` files are added under `src/`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
