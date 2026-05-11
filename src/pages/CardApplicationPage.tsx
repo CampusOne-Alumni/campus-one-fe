@@ -10,6 +10,7 @@ export function CardApplicationPage() {
   const [applicationType, setApplicationType] = useState<'new' | 'replacement'>('new')
   const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'delivery'>('pickup')
   const [idPhotoFileName, setIdPhotoFileName] = useState('')
+  const [isPhotoDragActive, setIsPhotoDragActive] = useState(false)
   const [consentAccepted, setConsentAccepted] = useState(false)
 
   const onSubmit = async (event: FormEvent) => {
@@ -31,18 +32,8 @@ export function CardApplicationPage() {
   }
 
   return (
-    <SectionCard title="Card Application" subtitle="Request or renew your alumni ID">
+    <SectionCard title="Alumni Card Application" subtitle="Request or renew your alumni ID">
       <form className="form-grid" onSubmit={onSubmit}>
-        <section className="form-block">
-          <h3>Card Preview</h3>
-          <div className="card-preview-shell">
-            <div className="card-preview-face">
-              <p>CAMPUS ONE</p>
-              <strong>ALUMNI CARD</strong>
-            </div>
-          </div>
-        </section>
-
         <section className="form-block info-block">
           <h3>Card Application Info</h3>
           <ul>
@@ -123,16 +114,53 @@ export function CardApplicationPage() {
 
         <section className="form-block">
           <h3>ID Photo</h3>
-          <label className="upload-label">
+          <label
+            className={`upload-label upload-card ${isPhotoDragActive ? 'is-drag-active' : ''} ${idPhotoFileName ? 'has-file' : ''}`}
+            onDragOver={(event) => {
+              event.preventDefault()
+              setIsPhotoDragActive(true)
+            }}
+            onDragLeave={() => setIsPhotoDragActive(false)}
+            onDrop={(event) => {
+              event.preventDefault()
+              setIsPhotoDragActive(false)
+
+              const droppedFile = event.dataTransfer.files?.[0]
+              setIdPhotoFileName(droppedFile ? droppedFile.name : '')
+            }}
+          >
             <input
               type="file"
               accept="image/jpeg,image/png"
+              aria-label="Upload ID photo"
               onChange={(event) => {
                 const selectedFile = event.target.files?.[0]
                 setIdPhotoFileName(selectedFile ? selectedFile.name : '')
               }}
             />
-            <span>{idPhotoFileName || 'Upload 2x2 Photo (JPG, PNG - Max. 5MB)'}</span>
+            <span className="upload-card-head">
+              <span className="upload-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M14 3H8.8C7.12 3 6.28 3 5.64 3.33A4 4 0 0 0 3.33 5.64C3 6.28 3 7.12 3 8.8v6.4c0 1.68 0 2.52.33 3.16a4 4 0 0 0 2.31 2.31c.64.33 1.48.33 3.16.33h6.4c1.68 0 2.52 0 3.16-.33a4 4 0 0 0 2.31-2.31c.33-.64.33-1.48.33-3.16V10zm0 0v5h5m-9 8 2.4-2.4a1 1 0 0 1 1.4 0L16 16m-6-1 1.2-1.2a1 1 0 0 1 1.4 0l.4.4" />
+                </svg>
+              </span>
+
+              <span className="upload-card-copy">
+                <strong>{idPhotoFileName ? 'Photo selected' : 'Upload file'}</strong>
+                <span>
+                  Drag and drop your 2x2 photo here or <em>Choose file</em>
+                </span>
+              </span>
+            </span>
+
+            <span className="upload-card-meta">
+              <small>Supported formats: JPG, PNG</small>
+              <small>Maximum size: 5MB</small>
+            </span>
+
+            <span className="upload-card-file" aria-live="polite">
+              {idPhotoFileName || 'No file selected yet'}
+            </span>
           </label>
         </section>
 
@@ -143,14 +171,14 @@ export function CardApplicationPage() {
             onChange={(event) => setConsentAccepted(event.target.checked)}
           />
           <span>
-            <strong>DATA PRIVACY NOTICE</strong>
+            <strong className="required-inline">DATA PRIVACY NOTICE<span className="required-mark">*</span></strong>
             I authorize Campus One to collect and process my personal information for alumni card
             application purposes in accordance with the Data Privacy Act of 2012.
           </span>
         </label>
 
         <button className="primary-btn" type="submit" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Submitting...' : 'Submit Card Application'}
+          {status === 'loading' ? 'Submitting...' : 'Submit Application'}
         </button>
       </form>
     </SectionCard>

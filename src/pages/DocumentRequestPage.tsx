@@ -12,6 +12,8 @@ export function DocumentRequestPage() {
   const [numberOfCopies, setNumberOfCopies] = useState(1)
   const [purpose, setPurpose] = useState('')
   const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'courier'>('pickup')
+  const [courierAddress, setCourierAddress] = useState('')
+  const [contactDetails, setContactDetails] = useState('')
   const [consentAccepted, setConsentAccepted] = useState(false)
 
   const onSubmit = async (event: FormEvent) => {
@@ -41,24 +43,27 @@ export function DocumentRequestPage() {
           <h3>Document Details</h3>
 
           <label>
-            Document Type *
-            <select
-              value={documentType}
-              onChange={(event) => setDocumentType(event.target.value)}
-              required
-            >
-              <option value="" disabled>
-                Select document type
-              </option>
-              <option>Transcript of Records</option>
-              <option>Diploma</option>
-              <option>Certificate of Graduation</option>
-              <option>Certificate of Enrollment</option>
-            </select>
+            <span className="required-inline">Document Type<span className="required-mark">*</span></span>
+            <div className="select-shell">
+              <select
+                value={documentType}
+                onChange={(event) => setDocumentType(event.target.value)}
+                required
+              >
+                <option value="" disabled>
+                  Select document type
+                </option>
+                <option>Transcript of Records</option>
+                <option>Diploma</option>
+                <option>Certificate of Graduation</option>
+                <option>Certificate of Enrollment</option>
+              </select>
+              <span className="select-arrow" aria-hidden="true">▾</span>
+            </div>
           </label>
 
           <label>
-            Number of Copies *
+            <span className="required-inline">Number of Copies<span className="required-mark">*</span></span>
             <input
               type="number"
               min={1}
@@ -69,7 +74,7 @@ export function DocumentRequestPage() {
           </label>
 
           <label>
-            Purpose of Request *
+            <span className="required-inline">Purpose of Request<span className="required-mark">*</span></span>
             <textarea
               value={purpose}
               onChange={(event) => setPurpose(event.target.value)}
@@ -112,6 +117,41 @@ export function DocumentRequestPage() {
               </span>
             </label>
           </div>
+
+          {deliveryMethod === 'courier' ? (
+            <div className="courier-fields">
+              <label>
+                <span className="required-inline">Address<span className="required-mark">*</span></span>
+                <textarea
+                  value={courierAddress}
+                  onChange={(event) => setCourierAddress(event.target.value)}
+                  rows={3}
+                  placeholder="Enter complete delivery address"
+                  required
+                />
+              </label>
+
+              <label>
+                <span className="required-inline">Contact Details<span className="required-mark">*</span></span>
+                <input
+                  type="text"
+                  value={contactDetails}
+                  onChange={(event) => setContactDetails(event.target.value)}
+                  placeholder="Name and contact number"
+                  required
+                />
+              </label>
+            </div>
+          ) : null}
+        </section>
+
+        <section className="form-block payment-placeholder">
+          <h3>Payment Gateway</h3>
+          <p>Payment integration placeholder for online checkout and reference code capture.</p>
+          <div className="payment-gateway-card" role="status" aria-live="polite">
+            <strong>Coming Soon</strong>
+            <span>GCash, Credit/Debit Card, and Bank Transfer options will be available here.</span>
+          </div>
         </section>
 
         <label className="checkbox-row consent-row">
@@ -121,7 +161,7 @@ export function DocumentRequestPage() {
             onChange={(event) => setConsentAccepted(event.target.checked)}
           />
           <span>
-            <strong>DATA PRIVACY NOTICE</strong>
+            <strong className="required-inline">DATA PRIVACY NOTICE<span className="required-mark">*</span></strong>
             I authorize Campus One to collect and process my personal information for document
             request purposes in accordance with the Data Privacy Act of 2012.
           </span>

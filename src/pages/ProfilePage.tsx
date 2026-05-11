@@ -105,6 +105,37 @@ export function ProfilePage() {
 
   return (
     <section className="profile-main-layout" aria-label="Profile settings">
+      <article className="section-card profile-form-card" aria-label="Personal information">
+        <header>
+          <h2>Personal Info</h2>
+          <p>Keep your account details up to date.</p>
+        </header>
+
+        <form className="form-grid" action="#" method="post">
+          <label>
+            <span className="required-inline">Full Name<span className="required-mark">*</span></span>
+            <input type="text" defaultValue="John Doe" required />
+          </label>
+
+          <label>
+            <span className="required-inline">Email Address<span className="required-mark">*</span></span>
+            <input type="email" defaultValue="jertznaval57@gmail.com" required />
+          </label>
+
+          <label>
+            <span className="required-inline">Contact Number<span className="required-mark">*</span></span>
+            <input type="tel" defaultValue="09171234567" required />
+          </label>
+
+          <label>
+            Mailing Address
+            <textarea rows={3} placeholder="Street, Barangay, City, Province" />
+          </label>
+
+          <button className="primary-btn" type="submit">Save Changes</button>
+        </form>
+      </article>
+
       <aside
         className="section-card settings-card settings-card-web"
         aria-label="Notifications and privacy settings"
@@ -179,7 +210,7 @@ export function ProfilePage() {
         </div>
 
         <button className="signout-btn" type="button">
-          Sign Out
+          Log Out
         </button>
       </aside>
     </section>

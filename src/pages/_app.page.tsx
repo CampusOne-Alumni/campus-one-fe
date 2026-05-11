@@ -6,27 +6,16 @@ import { store } from '../app/store'
 import '../index.css'
 import '../App.css'
 
-const pageTitles: Record<string, string> = {
-  '/': 'DASHBOARD',
-  '/dashboard': 'DASHBOARD',
-  '/profile': 'PROFILE',
-  '/document-request': 'DOCUMENT REQUEST',
-  '/card-application': 'CARD APPLICATION',
-  '/clearance-tracker': 'CLEARANCE TRACKER',
-  '/404': 'NOT FOUND',
-}
-
 function AppContent({ Component, pageProps }: AppProps) {
   const router = useRouter()
   const showShell = router.pathname !== '/register'
-  const title = pageTitles[router.pathname] ?? 'ALUMNI PORTAL'
 
   if (!showShell) {
     return <Component {...pageProps} />
   }
 
   return (
-    <AppShell title={title}>
+    <AppShell>
       <Component {...pageProps} />
     </AppShell>
   )
