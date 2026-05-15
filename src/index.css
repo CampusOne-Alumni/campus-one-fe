@@ -10,7 +10,7 @@ body,
 
 body {
   margin: 0;
-  font-family: 'DM Sans', 'Segoe UI', sans-serif;
-  background: #f5f5f5;
-  color: #162220;
+  font-family: Inter, 'Segoe UI', sans-serif;
+  background: #eef2f7;
+  color: #101828;
 }

@@ -16,7 +16,7 @@ type AlumniState = {
 
 const initialState: AlumniState = {
   profile: {
-    fullName: '',
+    fullName: 'John M Doe Jr.',
     email: '',
     course: '',
     graduationYear: '',

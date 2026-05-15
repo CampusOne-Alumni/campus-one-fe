@@ -1,24 +1,20 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useAppSelector } from '../../app/hooks'
 
-type SidebarProps = {
-  open: boolean
-  onNavigate: () => void
-  onClose: () => void
-}
-
-type SidebarIcon = 'dashboard' | 'profile' | 'document' | 'card' | 'tracker' | 'settings' | 'logout'
+type SidebarIcon = 'dashboard' | 'profile' | 'document' | 'card' | 'tracker' | 'requests' | 'payments' | 'settings' | 'logout'
 
 const navigationItems = [
   { to: '/', label: 'Dashboard', icon: 'dashboard' as const },
-  { to: '/profile', label: 'Profile', icon: 'profile' as const },
+  { to: '/requests?filter=active', label: 'My Requests', icon: 'requests' as const },
+  { to: '/payments', label: 'Billing & Payments', icon: 'payments' as const },
   { to: '/document-request', label: 'Document Request', icon: 'document' as const },
   { to: '/card-application', label: 'Card Application', icon: 'card' as const },
   { to: '/clearance-tracker', label: 'Clearance Tracker', icon: 'tracker' as const },
 ]
 
 const quickTabs = [
-  { to: '/profile', label: 'Settings', icon: 'settings' as const },
+  { to: '/settings', label: 'Settings', icon: 'settings' as const },
   { to: '#', label: 'Log Out', icon: 'logout' as const, tone: 'danger' as const },
 ]
 
@@ -76,6 +72,27 @@ function NavIcon({ type }: { type: SidebarIcon }) {
     )
   }
 
+  if (type === 'requests') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M3 10h18" />
+        <path d="M7 14h10" />
+        <path d="M7 18h5" />
+      </svg>
+    )
+  }
+
+  if (type === 'payments') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <path d="M2 10h20" />
+        <circle cx="5" cy="17" r="1" />
+      </svg>
+    )
+  }
+
   if (type === 'settings') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -94,32 +111,40 @@ function NavIcon({ type }: { type: SidebarIcon }) {
   )
 }
 
-export function Sidebar({ open, onNavigate, onClose }: SidebarProps) {
+export function Sidebar() {
   const router = useRouter()
+  const profileName = useAppSelector((state) => state.alumni.profile.fullName).trim() || 'Pio Felipe Ramirez'
+  const sidebarName = profileName.length > 15 ? `${profileName.slice(0, 15)}...` : profileName
+  const profileInitials = profileName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('') || 'PR'
 
   const isActivePath = (path: string) => {
     if (path === '/') {
       return router.pathname === '/'
     }
 
+    // Handle requests path with query parameters
+    if (path.includes('?')) {
+      const basePath = path.split('?')[0]
+      return router.pathname === basePath
+    }
+
     return router.pathname === path || router.pathname.startsWith(`${path}/`)
   }
 
   return (
-    <aside className={`sidebar ${open ? 'open' : ''}`}>
+    <aside className="sidebar">
       <div className="sidebar-header">
-        <div className="sidebar-brand-lockup">
+        <div className="sidebar-brand-lockup" aria-label="Campus Portal">
           <p>
             <span className="sidebar-brand-campus">CAMPUS</span>
             <span className="sidebar-brand-portal"> Portal</span>
           </p>
-          <small>Office of Alumni Relations</small>
         </div>
-
-        <button className="sidebar-close" type="button" onClick={onClose} aria-label="Close menu">
-          <span />
-          <span />
-        </button>
       </div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
@@ -127,7 +152,6 @@ export function Sidebar({ open, onNavigate, onClose }: SidebarProps) {
           <Link
             key={item.to}
             href={item.to}
-            onClick={onNavigate}
             className={isActivePath(item.to) ? 'active' : ''}
           >
             <span className="sidebar-item-icon" aria-hidden="true">
@@ -138,15 +162,11 @@ export function Sidebar({ open, onNavigate, onClose }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="sidebar-divider" aria-hidden="true" />
-
-      <div className="sidebar-quick-tabs" aria-label="Quick tabs">
-        <h4>Quick Tabs</h4>
+      <div className="sidebar-secondary" aria-label="Secondary navigation">
         {quickTabs.map((item) => (
           <Link
             key={item.label}
             href={item.to}
-            onClick={onNavigate}
             className={item.tone === 'danger' ? 'danger' : ''}
           >
             <span className="sidebar-item-icon" aria-hidden="true">
@@ -156,6 +176,27 @@ export function Sidebar({ open, onNavigate, onClose }: SidebarProps) {
           </Link>
         ))}
       </div>
+
+      <Link
+        href="/profile"
+        className={`sidebar-profile-card ${isActivePath('/profile') ? 'active' : ''}`}
+        aria-label="Open profile"
+      >
+        <div className="sidebar-profile-avatar" aria-hidden="true">
+          {profileInitials}
+        </div>
+
+        <div className="sidebar-profile-copy">
+          <strong>{sidebarName}</strong>
+          <span>Student</span>
+        </div>
+
+        <span className="sidebar-profile-toggle" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m7 10 5 5 5-5" />
+          </svg>
+        </span>
+      </Link>
     </aside>
   )
 }

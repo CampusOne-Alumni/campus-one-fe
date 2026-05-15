@@ -1,6 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { setSidebarOpen, toggleSidebar } from '../../features/ui/uiSlice'
 import { Sidebar } from './Sidebar'
 
 type AppShellProps = {
@@ -16,61 +15,106 @@ function NotificationIcon() {
   )
 }
 
-function PortalLogo() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 2.6 19 6.7v8.2L12 19 5 14.9V6.7L12 2.6Z" />
-      <path d="M8 9.2 12 7l4 2.2" />
-      <path d="M12 7v4.8" />
-      <path d="M8.2 11.2 12 13.4l3.8-2.2" />
-    </svg>
-  )
-}
+const notifications = [
+  {
+    title: 'Profile update reminder',
+    message: 'Review your contact details before the next verification cycle.',
+    time: '2 min ago',
+  },
+  {
+    title: 'Document request received',
+    message: 'Your latest document request is now being processed.',
+    time: '1 hour ago',
+  },
+  {
+    title: 'Clearance tracker moved',
+    message: 'Your clearance status changed to In Review.',
+    time: 'Yesterday',
+  },
+]
 
 export function AppShell({ children }: AppShellProps) {
-  const dispatch = useAppDispatch()
-  const isSidebarOpen = useAppSelector((state) => state.ui.sidebarOpen)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(notifications.length)
+  const notificationPanelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (!notificationPanelRef.current?.contains(event.target as Node)) {
+        setIsNotificationOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsNotificationOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleDocumentClick)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handleDocumentClick)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [])
 
   return (
     <div className="app-shell">
-      <Sidebar
-        open={isSidebarOpen}
-        onNavigate={() => dispatch(setSidebarOpen(false))}
-        onClose={() => dispatch(setSidebarOpen(false))}
-      />
-
-      {isSidebarOpen ? (
-        <button
-          className="scrim"
-          onClick={() => dispatch(setSidebarOpen(false))}
-          aria-label="Close menu"
-        />
-      ) : null}
+      <Sidebar />
 
       <div className="app-content">
         <header className="top-bar">
-          <button
-            className="menu-button"
-            type="button"
-            onClick={() => dispatch(toggleSidebar())}
-            aria-label="Toggle menu"
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-          <div className="top-bar-brand" aria-label="Campus Portal">
-            <span className="top-bar-logo" aria-hidden="true">
-              <PortalLogo />
-            </span>
-            <h1>
-              <span className="brand-campus">CAMPUS</span>
-              <span className="brand-portal">Portal</span>
-            </h1>
+          <div className="notification-wrap" ref={notificationPanelRef}>
+            <button
+              className="notification-button"
+              type="button"
+              aria-label="Notifications"
+              aria-expanded={isNotificationOpen}
+              aria-controls="top-bar-notifications"
+              onClick={() => {
+                setIsNotificationOpen((current) => {
+                  const nextOpen = !current
+
+                  if (nextOpen) {
+                    setUnreadNotificationCount(0)
+                  }
+
+                  return nextOpen
+                })
+              }}
+            >
+              <NotificationIcon />
+              {unreadNotificationCount > 0 ? (
+                <span className="notification-badge" aria-hidden="true">{unreadNotificationCount}</span>
+              ) : null}
+            </button>
+
+            {isNotificationOpen ? (
+              <div className="notification-panel" id="top-bar-notifications" role="dialog" aria-label="Notifications">
+                <div className="notification-panel-header">
+                  <div>
+                    <h2>Notifications</h2>
+                    <p>Recent updates from your portal.</p>
+                  </div>
+                </div>
+
+                <div className="notification-list">
+                  {notifications.map((notification) => (
+                    <article className="notification-item" key={notification.title}>
+                      <div className="notification-item-dot" aria-hidden="true" />
+                      <div>
+                        <h3>{notification.title}</h3>
+                        <p>{notification.message}</p>
+                        <small>{notification.time}</small>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
-          <button className="notification-button" type="button" aria-label="Notifications">
-            <NotificationIcon />
-          </button>
         </header>
 
         <main>

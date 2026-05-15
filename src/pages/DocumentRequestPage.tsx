@@ -11,7 +11,7 @@ export function DocumentRequestPage() {
   const [documentType, setDocumentType] = useState('')
   const [numberOfCopies, setNumberOfCopies] = useState(1)
   const [purpose, setPurpose] = useState('')
-  const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'courier'>('pickup')
+  const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'courier' | ''>('')
   const [courierAddress, setCourierAddress] = useState('')
   const [contactDetails, setContactDetails] = useState('')
   const [consentAccepted, setConsentAccepted] = useState(false)
@@ -19,6 +19,10 @@ export function DocumentRequestPage() {
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault()
     if (!consentAccepted) {
+      return
+    }
+
+    if (!deliveryMethod) {
       return
     }
 
@@ -58,7 +62,11 @@ export function DocumentRequestPage() {
                 <option>Certificate of Graduation</option>
                 <option>Certificate of Enrollment</option>
               </select>
-              <span className="select-arrow" aria-hidden="true">▾</span>
+              <span className="select-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </span>
             </div>
           </label>
 
@@ -86,7 +94,9 @@ export function DocumentRequestPage() {
         </section>
 
         <section className="form-block">
-          <h3>Delivery Method</h3>
+          <h3>
+            <span className="required-inline">Delivery Method<span className="required-mark">*</span></span>
+          </h3>
 
           <div className="option-stack" role="radiogroup" aria-label="Delivery method">
             <label className="option-item">
@@ -94,6 +104,7 @@ export function DocumentRequestPage() {
                 type="radio"
                 name="document-delivery"
                 value="pickup"
+                required
                 checked={deliveryMethod === 'pickup'}
                 onChange={() => setDeliveryMethod('pickup')}
               />
@@ -108,6 +119,7 @@ export function DocumentRequestPage() {
                 type="radio"
                 name="document-delivery"
                 value="courier"
+                required
                 checked={deliveryMethod === 'courier'}
                 onChange={() => setDeliveryMethod('courier')}
               />
@@ -161,7 +173,7 @@ export function DocumentRequestPage() {
             onChange={(event) => setConsentAccepted(event.target.checked)}
           />
           <span>
-            <strong className="required-inline">DATA PRIVACY NOTICE<span className="required-mark">*</span></strong>
+            <strong className="required-inline">DATA PRIVACY NOTICE<span className="required-mark privacy-mark">*</span></strong>
             I authorize Campus One to collect and process my personal information for document
             request purposes in accordance with the Data Privacy Act of 2012.
           </span>

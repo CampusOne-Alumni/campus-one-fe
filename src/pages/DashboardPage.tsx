@@ -1,8 +1,55 @@
 import Link from 'next/link'
+import { useAppSelector } from '../app/hooks'
+import {
+  mockRequests,
+  getActiveRequests,
+  getCompletedRequests,
+  getReadyForPickupRequests,
+  getPendingPayments,
+} from '../types/requests'
+import { mockPayments } from '../types/payments'
 
-type MetricIcon = 'calendar' | 'services' | 'network' | 'status'
+type MetricTone = 'blue' | 'green' | 'amber' | 'violet'
+type DashboardIcon = 'calendar' | 'folder' | 'shield'
 
-function OverviewIcon({ type }: { type: MetricIcon }) {
+type StatCard = {
+  tone: MetricTone
+  icon: DashboardIcon
+  value: string
+  label: string
+  action: string
+  href: string
+}
+
+type QuickAction = {
+  icon: DashboardIcon
+  title: string
+  description: string
+  href: string
+}
+
+const quickActions: QuickAction[] = [
+  {
+    icon: 'folder',
+    title: 'Request documents',
+    description: 'Order transcripts, diplomas, or other documents.',
+    href: '/document-request',
+  },
+  {
+    icon: 'calendar',
+    title: 'Apply for alumni card',
+    description: 'Get your official alumni identification card.',
+    href: '/card-application',
+  },
+  {
+    icon: 'shield',
+    title: 'View clearance status',
+    description: 'Check the status of background clearance requests.',
+    href: '/clearance-tracker',
+  },
+]
+
+function DashboardIcon({ type }: { type: DashboardIcon }) {
   if (type === 'calendar') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -11,133 +58,189 @@ function OverviewIcon({ type }: { type: MetricIcon }) {
         <path d="M16 3v4" />
         <path d="M4 9.5h16" />
         <path d="M8 13h3" />
-        <path d="M8 16h5" />
       </svg>
     )
   }
 
-  if (type === 'services') {
+  if (type === 'folder') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="6.5" width="17" height="11" rx="2.25" />
-        <path d="M3.5 10.2h17" />
-        <path d="M7.5 13.5h4" />
-        <path d="M13 13.5h3.5" />
+        <path d="M3.5 7.5h6l2 2h9v7.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V7.5Z" />
+        <path d="M5.5 5.5h5l1.5 2" />
       </svg>
     )
   }
 
-  if (type === 'network') {
+  if (type === 'shield') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="6" cy="8" r="2" />
-        <circle cx="18" cy="8" r="2" />
-        <circle cx="12" cy="16.5" r="2" />
-        <path d="M8 8h8" />
-        <path d="M7.2 9.6 11 14.7" />
-        <path d="M16.8 9.6 13 14.7" />
+        <path d="M12 3.5 19 6v5.3c0 4.1-2.8 7.6-7 9.2-4.2-1.6-7-5.1-7-9.2V6l7-2.5Z" />
+        <path d="m8.4 12.1 2.2 2.1 4.9-5" />
       </svg>
     )
   }
 
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="7" />
-      <path d="M12 8v4l2.5 1.5" />
-      <path d="M12 12h4" />
+      <path d="M4 12.2h16" />
+      <path d="M12 4.5v15" />
+      <path d="m7 7 5-2.5L17 7" />
     </svg>
   )
 }
 
+function toneClass(tone: MetricTone) {
+  return `tone-${tone}`
+}
+
 export function DashboardPage() {
+  const fullName = useAppSelector((state) => state.alumni.profile.fullName)
+  const nameParts = fullName.trim().split(/\s+/).filter(Boolean)
+  const greetingName =
+    nameParts.length === 0
+      ? 'Pio Felipe Ramirez'
+      : nameParts.length === 1
+      ? nameParts[0]
+      : `${nameParts[0]} ${nameParts[nameParts.length - 1]}`
+  const progress = 25
+
+  // Calculate dynamic counts from requests
+  const activeCount = getActiveRequests(mockRequests).length
+  const completedCount = getCompletedRequests(mockRequests).length
+  const pickupCount = getReadyForPickupRequests(mockRequests).length
+  const paymentCount = getPendingPayments(mockRequests).length
+
+  // Generate summary cards with dynamic data
+  const summaryCards: StatCard[] = [
+    {
+      tone: 'violet',
+      icon: 'folder',
+      value: activeCount.toString(),
+      label: 'Active applications',
+      action: 'View all',
+      href: '/requests?filter=active',
+    },
+    {
+      tone: 'blue',
+      icon: 'calendar',
+      value: paymentCount.toString(),
+      label: 'Pending payments',
+      action: 'View invoice',
+      href: '/payments',
+    },
+    {
+      tone: 'amber',
+      icon: 'folder',
+      value: pickupCount.toString(),
+      label: 'Items for pickup',
+      action: 'Arrange pickup',
+      href: '/requests?filter=readyForPickup',
+    },
+    {
+      tone: 'green',
+      icon: 'shield',
+      value: completedCount.toString(),
+      label: 'Completed requests',
+      action: 'View history',
+      href: '/requests?filter=completed',
+    },
+  ]
+
   return (
     <section className="dashboard-screen">
-      <div className="dashboard-format">
-        <section className="dashboard-heading">
+      <header className="dashboard-hero">
+        <div>
           <h2>Dashboard</h2>
-          <p>Welcome back, Alumni Member</p>
-        </section>
+          <p className="dashboard-lead">Welcome back, {greetingName} 👋</p>
+        </div>
+      </header>
 
-        <section className="dashboard-metrics-grid" aria-label="Dashboard overview">
-          <article className="dashboard-metric-card">
-            <span className="dashboard-metric-icon" aria-hidden="true">
-              <OverviewIcon type="services" />
+      <section className="dashboard-stat-grid" aria-label="Dashboard summary">
+        {summaryCards.map((card) => (
+          <article key={card.label} className="dashboard-stat-card">
+            <span className={`dashboard-stat-icon ${toneClass(card.tone)}`} aria-hidden="true">
+              <DashboardIcon type={card.icon} />
             </span>
-            <strong>0</strong>
-            <span>Services Used</span>
-          </article>
 
-          <article className="dashboard-metric-card">
-            <span className="dashboard-metric-icon" aria-hidden="true">
-              <OverviewIcon type="calendar" />
-            </span>
-            <strong>2024</strong>
-            <span>Member Since</span>
+            <div className="dashboard-stat-copy">
+              <strong>{card.value}</strong>
+              <span>{card.label}</span>
+              <Link href={card.href} className="dashboard-stat-link">
+                {card.action}
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </article>
+        ))}
+      </section>
 
-          <article className="dashboard-metric-card">
-            <span className="dashboard-metric-icon" aria-hidden="true">
-              <OverviewIcon type="network" />
-            </span>
-            <strong>5,420</strong>
-            <span>Alumni Network</span>
-          </article>
-
-          <article className="dashboard-metric-card">
-            <span className="dashboard-metric-icon" aria-hidden="true">
-              <OverviewIcon type="status" />
-            </span>
-            <strong className="status-inline">
-              <span className="status-dot is-active" aria-hidden="true" />
-              Active
-            </strong>
-            <span>Profile Status</span>
-          </article>
-        </section>
-
-        <section className="dashboard-status-panel">
-          <header>
-            <h3>Enrollment Status</h3>
+      <section className="dashboard-content-grid">
+        <article className="dashboard-card dashboard-card--status">
+          <header className="dashboard-card-head">
+            <div>
+              <p className="dashboard-card-kicker">Your requests</p>
+              <h3>Application overview</h3>
+            </div>
           </header>
 
-          <div className="dashboard-status-grid">
-            <div className="dashboard-status-row">
-              <span>Current Semester</span>
-              <strong>Spring 2026</strong>
+          <div className="dashboard-status-list">
+              {mockRequests.slice(0, 3).map((req) => {
+                // if there's a payment under verification for this request, show that status
+                const paymentUnderCheck = mockPayments.find((p) => p.requestId === req.id && p.status === 'under_verification')
+                const displayStatus = paymentUnderCheck ? 'Under Verification' : req.status
+                const pillClass = paymentUnderCheck
+                  ? 'is-verification'
+                  : req.status === 'Processing'
+                  ? 'is-open'
+                  : req.status === 'Ready for Pickup'
+                  ? 'is-ready'
+                  : req.status === 'Shipped'
+                  ? 'is-shipped'
+                  : ''
+
+                return (
+                  <div className="dashboard-status-row" key={req.id}>
+                    <div>
+                      <strong>{req.title}</strong>
+                      <small>{req.serviceType}</small>
+                    </div>
+                    <strong className={`status-pill ${pillClass}`}>{displayStatus}</strong>
+                  </div>
+                )
+              })}
+          </div>
+
+          <div className="dashboard-progress">
+            <div className="dashboard-progress-head">
+              <span>Most urgent: Alumni Card Application</span>
+              <strong>{progress}%</strong>
             </div>
-            <div className="dashboard-status-row">
-              <span>Enrollment Period</span>
-              <strong className="status-open">Open</strong>
-            </div>
-            <div className="dashboard-status-row">
-              <span>Cart Units</span>
-              <strong>0 / 24</strong>
-            </div>
-            <div className="dashboard-status-row">
-              <span>Enrolled Units</span>
-              <strong>6</strong>
+            <div className="dashboard-progress-track" aria-hidden="true">
+              <span style={{ width: `${progress}%` }} />
             </div>
           </div>
-        </section>
+        </article>
 
-        <section className="dashboard-actions-panel">
-          <header>
-            <h3>Quick Actions</h3>
-          </header>
+        <section className="dashboard-actions-grid" aria-label="Quick actions">
+          {quickActions.map((action) => (
+            <Link key={action.title} href={action.href} className="dashboard-action-card">
+              <span className="dashboard-action-icon" aria-hidden="true">
+                <DashboardIcon type={action.icon} />
+              </span>
 
-          <div className="dashboard-actions-list">
-            <Link className="dashboard-action-row" href="/card-application">
-              Apply for Alumni Card
+              <span className="dashboard-action-copy">
+                <strong>{action.title}</strong>
+                <small>{action.description}</small>
+              </span>
+
+              <span className="dashboard-action-chevron" aria-hidden="true">
+                →
+              </span>
             </Link>
-            <Link className="dashboard-action-row" href="/document-request">
-              Request Documents
-            </Link>
-            <Link className="dashboard-action-row" href="/clearance-tracker">
-              Track Clearance Routing
-            </Link>
-          </div>
+          ))}
         </section>
-      </div>
+      </section>
+
     </section>
   )
 }
